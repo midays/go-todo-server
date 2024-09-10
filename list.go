@@ -1,8 +1,8 @@
 package main
 
 type Node struct {
-	ID   int
-	Name string
+	ID   string `json:"id,omitempty"`
+	Name string `json:"name"`
 }
 
 type List struct {
@@ -18,7 +18,7 @@ func (list *List) getList() []Node {
 	return list.Nodes
 }
 
-func (list *List) Delete(id int) (string, bool) {
+func (list *List) Delete(id string) (string, bool) {
 	for index, node := range list.Nodes {
 		if node.ID == id {
 			list.Nodes = append(list.Nodes[:index], list.Nodes[index+1:]...)
@@ -28,7 +28,7 @@ func (list *List) Delete(id int) (string, bool) {
 	return "Item not found", false
 }
 
-func (list *List) getNodeByID(id int) (Node, bool) {
+func (list *List) getNodeByID(id string) (Node, bool) {
 	for _, node := range list.Nodes {
 		if node.ID == id {
 			return node, true

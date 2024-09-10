@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 	"sync"
 )
 
@@ -36,11 +36,7 @@ func getById(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	id, err := strconv.Atoi(request.URL.Path[len("/todo/getByID/"):])
-	if err != nil {
-		http.Error(writer, "Invalid ID", http.StatusBadRequest)
-		return
-	}
+	id := request.URL.Path[len("/todo/getByID/"):]
 
 	/*
 		I couldn't do the compare on line 58, I had to change the foundNode to a pointer,
@@ -67,7 +63,33 @@ func getById(writer http.ResponseWriter, request *http.Request) {
 
 }
 
-func AddNode(w http.ResponseWriter, r *http.Request, id int) {
+func addNode(writer http.ResponseWriter, response *http.Request) {
+
+	if response.Method != "POST" {
+		http.Error(writer, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		http.Error(writer, "Error reading request body", http.StatusBadRequest)
+		return
+	}
+	defer response.Body.Close()
+
+	var node Node
+
+	// Decode the JSON into the Node struct
+	err = json.Unmarshal(body, &node)
+	if err != nil {
+		http.Error(writer, "Error parsing JSON", http.StatusBadRequest)
+		return
+	}
+
+	node.ID = generateID()
+
+	list.Add(node)
+	json.NewEncoder(writer).Encode("Item Added")
 
 }
 
@@ -75,11 +97,7 @@ func deleteById(writer http.ResponseWriter, request *http.Request) {
 	postsMu.Lock()
 	defer postsMu.Unlock()
 
-	id, err := strconv.Atoi(request.URL.Path[len("/todo/deleteByID/"):])
-	if err != nil {
-		http.Error(writer, "Invalid ID", http.StatusBadRequest)
-		return
-	}
+	id := request.URL.Path[len("/todo/deleteByID/"):]
 
 	msg, deleted := list.Delete(id)
 
@@ -93,13 +111,10 @@ func deleteById(writer http.ResponseWriter, request *http.Request) {
 
 func main() {
 
-	list.Add(Node{ID: 1, Name: "first node"})
-	list.Add(Node{ID: 2, Name: "second node"})
-	list.Add(Node{ID: 3, Name: "third node"})
-
 	http.HandleFunc("/todo/getAll", getAll)
 	http.HandleFunc("/todo/getByID/", getById)
 	http.HandleFunc("/todo/deleteByID/", deleteById)
+	http.HandleFunc("/todo/addItem", addNode)
 
 	fmt.Println("Server is running at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
