@@ -14,6 +14,9 @@ var (
 
 func getAll(writer http.ResponseWriter, request *http.Request) {
 
+	postsMu.Lock()
+	defer postsMu.Unlock()
+
 	if request.Method != "GET" {
 		http.Error(writer, "This method is not allowed!", http.StatusMethodNotAllowed)
 		return
@@ -22,12 +25,12 @@ func getAll(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(writer).Encode(list)
 
-	postsMu.Lock()
-	defer postsMu.Unlock()
-
 }
 
 func getById(writer http.ResponseWriter, request *http.Request) {
+
+	postsMu.Lock()
+	defer postsMu.Unlock()
 
 	if request.Method != "GET" {
 		http.Error(writer, "This method is not allowed!", http.StatusMethodNotAllowed)
@@ -45,12 +48,12 @@ func getById(writer http.ResponseWriter, request *http.Request) {
 		http.Error(writer, "Item not found", http.StatusNotFound)
 	}
 
-	postsMu.Lock()
-	defer postsMu.Unlock()
-
 }
 
 func addNode(writer http.ResponseWriter, response *http.Request) {
+
+	postsMu.Lock()
+	defer postsMu.Unlock()
 
 	if response.Method != "POST" {
 		http.Error(writer, "Invalid request method", http.StatusMethodNotAllowed)
