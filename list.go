@@ -1,8 +1,9 @@
 package main
 
 type Node struct {
-	ID   string `json:"id,omitempty"`
-	Name string `json:"name"`
+	ID       string `json:"id,omitempty"`
+	Name     string `json:"name"`
+	Priority int    `json:"priority,omitempty"`
 }
 
 type List struct {
@@ -12,10 +13,6 @@ type List struct {
 func (list *List) Add(node Node) {
 	list.Nodes = append(list.Nodes, node)
 
-}
-
-func (list *List) getList() []Node {
-	return list.Nodes
 }
 
 func (list *List) Delete(id string) (string, bool) {
