@@ -22,7 +22,7 @@ func (list *List) Delete(id int) (string, bool) {
 	for index, node := range list.Nodes {
 		if node.ID == id {
 			list.Nodes = append(list.Nodes[:index], list.Nodes[index+1:]...)
-			return "deleted", true
+			return "Item deleted", true
 		}
 	}
 	return "Item not found", false
