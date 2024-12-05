@@ -19,6 +19,7 @@ func main() {
 	var rootCMD = &cobra.Command{
 		Use:   "todo-client",
 		Short: "A simple CLI client to interact with the server",
+		// todo: switch to RunE, used to handle errors in a correct friendly way
 		Run: func(cmd *cobra.Command, args []string) {
 
 			if listFlag {

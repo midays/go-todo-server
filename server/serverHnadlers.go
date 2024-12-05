@@ -9,9 +9,10 @@ import (
 )
 
 var (
-	list    = List{}
 	postsMu sync.Mutex
 )
+
+// todo: use gin + sqlite ( need GORM which gives the mapping between the DB objects, and the code )
 
 func getAll(writer http.ResponseWriter, request *http.Request) {
 
@@ -80,9 +81,14 @@ func addNode(writer http.ResponseWriter, response *http.Request) {
 
 	node.ID = generateID()
 
-	list.Add(node)
-	json.NewEncoder(writer).Encode("Item Added")
+	result := db.Create(&node)
+	if result.Error != nil {
+		http.Error(writer, result.Error.Error(), http.StatusInternalServerError)
+	}
+	writer.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(writer).Encode(node)
 
+	loadData()
 }
 
 func deleteById(writer http.ResponseWriter, request *http.Request) {
